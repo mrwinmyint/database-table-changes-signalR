@@ -1,0 +1,61 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Album</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="~/signalr/hubs" type="text/javascript"></script>
+    <script type="text/javascript">
+
+        $(function () {
+
+            // Proxy created on the fly
+            var album = $.connection.albumHub;
+
+            // Declare a function on the album hub so the server can invoke it
+            album.client.displayStatus = function () {
+                getData();
+            };
+
+            // Start the connection
+            $.connection.hub.start();
+            getData();
+        });
+
+        function getData() {
+            var $tbl = $('#tblAlbum');
+            $.ajax({
+                url: '../api/Albums',
+                type: 'GET',
+                datatype: 'json',
+                success: function (data) {
+                    if (data.length > 0) {
+                        $tbl.empty();
+                        $tbl.append(' <tr><th>ID</th><th>Title</th><th>User Id</th></tr>');
+                        var rows = [];
+                        for (var i = 0; i < data.length; i++) {
+                            rows.push(' <tr><td>' + data[i].Id + '</td><td>' + data[i].Title + '</td><td>' + data[i].UserId + '</td></tr>');
+                        }
+                        $tbl.append(rows.join(''));
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <table id="tblAlbum" style="text-align:center;margin-left:10px">
+        </table>
+    </div>
+</body>
+</html>
